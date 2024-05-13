@@ -47,9 +47,27 @@ public class Puesto {
     public void setDimension(Puesto[][] dimension) {
         this.dimension = dimension;
     }
+    //Metodo para ver si el vehiculo esta registrado una vez (maximo de registro al mismo tiempo: 1)
+    public boolean puestoDisponibilidadPorVehiculo(Vehiculo vehiculo) {
+        boolean disponibilidad=false;
+        for(int x=0;x<getI();i++){
+            for(int y=0;y<getJ();j++) {
+                if (dimension[x][y].getVehiculo()==vehiculo) {
+                    disponibilidad=true;
+                }
+            }
+        }
+        return disponibilidad;
+    }
+    //Metodo para ver si un puesto esta ocupada o no(boolean) por indice : (True=ocupado)
+    public boolean puestoDisponibilidad(int t, int w) {
+        assert(t<=getI()&&w<=getJ());
+        return dimension[t][w].isOcupado();
+    }
     //Metodo para ocupar un Puesto con un vehiculo
     public void ocuparPuesto(Vehiculo vehiculo, int t, int w) {
-        assert(dimension[t][w].isOcupado()==false);
+        assert(t<=getI()&&w<=getJ());
+        assert(dimension[t][w].isOcupado()==false)&&(puestoDisponibilidadPorVehiculo(vehiculo)==false);
         dimension[t][w].setVehiculo(vehiculo);
         dimension[t][w].setOcupado(true);
     }

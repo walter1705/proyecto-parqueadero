@@ -3,7 +3,7 @@ package co.edu.uniquindio.poo;
 public class Propietario {
     private String nombreCompleto, id;   
     // Metodo constructor de la clase 
-    public Propietario(String nombreCompleto, String apellido, String id) {
+    public Propietario(String nombreCompleto, String id) {
         this.nombreCompleto = nombreCompleto;
         this.id = id;
     }

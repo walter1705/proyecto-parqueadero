@@ -2,8 +2,12 @@ package co.edu.uniquindio.poo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
+
+import javax.swing.text.StyleConstants;
 
 public class Parqueadero {
+    static private Scanner scanner = new Scanner(System.in);
     private Puesto[][] dimension;
     private int filas, columnas;
     private Map<String, Double> tarifasParqueadero;
@@ -37,6 +41,22 @@ public class Parqueadero {
         } 
         return montoPorHora;
     }
+    //Metodo para establecer la tarifas del parqueadero 
+    public void setTarifaManual() {
+        System.out.println("Ingrese la tarifa unitaria del carro: ");
+        double tarifaCarro = scanner.nextInt();
+
+        System.out.println("Ingrese la tarifa unitaria de la moto, clasica: ");
+        double tarifaMotoClasica = scanner.nextInt();
+
+        System.out.println("Ingrese la tarifa unitaria del carro: ");
+        double tarifaMotoHibrida = scanner.nextInt();
+
+        establecerTarifa("CARRO", tarifaCarro);
+        establecerTarifa("MOTO CLASICA", tarifaMotoClasica);
+        establecerTarifa("MOTO HIBRIDA", tarifaMotoHibrida);
+
+    }
     //Metodo para obtener el precio del estacionamiento por horas y por la tarifa ya establecida
     public double calcularCostoTotal(short horasDeServicio, Map<String, Double> tarifasParqueadero, String tipoVehiculo) {
         assert (horasDeServicio>0);
@@ -49,6 +69,17 @@ public class Parqueadero {
     }
     public void setDimension(Puesto[][] dimension) {
         this.dimension = dimension;
+    }
+    //metodo para modificar las filas y columnas del parqueadero
+    public void setDimensionManual() {
+        System.out.println("Ingrese las filas de su parqueadero. (i<-, j)");
+        int i = scanner.nextInt();
+
+        System.out.println("Ingrese las columnas de su parqueadero. (i, ->j)");
+        int j = scanner.nextInt();
+
+        setFilas(i);
+        setColumnas(j);
     }
     //Metodo get y set de las FILAS de la dimension de los puestos del parqueadero
     public int getFilas() {
@@ -81,17 +112,73 @@ public class Parqueadero {
         assert (t<=getFilas()&&w<=getColumnas());
         return dimension[t][w].isOcupado();
     }
+    //Metodo interativo para registrar un vehiculo
+    public void registrarVehiculo() {
+        System.out.println("Tipos de vehiculos: 1. Carro  2. Moto");
+        System.out.println("Elige el tipo de vehiculo.");
+        int tipo = scanner.nextInt();
+
+        
+        int velMaxima=0;
+        int tipoMoto=0;
+        if (tipo==2) {
+            while(tipoMoto!=1 || tipoMoto!=2) {
+            System.out.println("1. Clasica   2. Hibrida  ");
+            tipoMoto = scanner.nextInt();
+            }
+            System.out.println("Ingrese la velocidad maxima de la moto: ");
+            velMaxima = scanner.nextInt();
+            }
+        System.out.println("Ingrese su nombre completo: ");
+        String nombre = scanner.nextLine();
+        
+        System.out.println("Ingrese su documento de identificacion: ");
+        String id = scanner.nextLine();
+
+        System.out.println("Ingrese la placa del vehiculo a registrar: ");
+        String placa = scanner.nextLine();
+
+        System.out.println("Ingrese el modelo del vehiculo a registrar: ");
+        String modelo = scanner.nextLine();
+
+        System.out.println("Ingrese el puesto de parqueadero que desea asignar al vehiculo: ");
+        int n = scanner.nextInt();
+        System.out.println("Se encuentran "+ dimension.length +" puestos en el parqueadero. ");
+
+        System.out.println();
+        
+        switch (tipo) {
+            case 1:
+                ocuparPuesto(new Carro(placa, modelo, new Propietario(nombre, id)), n);
+                break;
+            case 2:
+                if (tipoMoto==1) {
+                    ocuparPuesto(new Moto(placa, modelo, new Propietario(nombre, id), velMaxima, TipoMoto.CLASICA), n);
+                }
+                break;
+            default:
+            System.out.println("Opcion invalida.");
+                break;
+        }
+    }
     //Metodo para ocupar un Puesto con un vehiculo
-    public void ocuparPuesto(Vehiculo vehiculo, int t, int w) {
-        assert (t<=getFilas()&&w<=getColumnas());
-        assert (dimension[t][w].isOcupado()==false)&&(puestoDisponibilidadPorVehiculo(vehiculo)==false);
-        dimension[t][w].setVehiculo(vehiculo);
-        dimension[t][w].setOcupado(true);
+    public void ocuparPuesto(Vehiculo vehiculo, int n) {
+        assert (n<=dimension.length);
+        int contadorcito = 0;
+        ;
+        for(int i=0;i<getFilas();i++) {
+            for(int j=0;j<getColumnas();j++) {
+                if (n==contadorcito) {
+                    assert (dimension[i][j].isOcupado()==false)&&(puestoDisponibilidadPorVehiculo(vehiculo)==false);
+                    dimension[i][j].setVehiculo(vehiculo);
+                    dimension[i][j].setOcupado(true);
+                }
+                contadorcito+=1;
+            }
+        } 
     }
     //Metodo para obtener el propietario de un vehiculo en un puesto dado
     public Propietario obtenerPropietarioPorPuesto(int t, int w) {
-        Propietario propietario=dimension[t][w].getVehiculo().getPropietario();
-        return propietario;
+        return dimension[t][w].getVehiculo().getPropietario();
     }
-    
 }

@@ -1,11 +1,10 @@
 # proyecto
 
-Descripciín basisca de su Proyecto de POO ...
+Proyecto parqueadero, requerimiento Programacion I, Uniquindio
 
 # Autores
 
-- Autor 1
-- Autor 2
+-Walter Granada
 
 # Herramientas
 

@@ -1,23 +1,27 @@
 package co.edu.uniquindio.poo;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.swing.text.StyleConstants;
 
 public class Parqueadero {
     static private Scanner scanner = new Scanner(System.in);
     private Puesto[][] dimension;
     private int filas, columnas;
     private Map<String, Double> tarifasParqueadero;
+    private Collection<RegistroEntrada> registros;
+    
     //Metodo constructor de la clase parqueadero
     public Parqueadero(int filas, int columnas) {
         this.filas = filas;
         this.columnas = columnas;
         dimension = new Puesto[filas][columnas];
-        tarifasParqueadero = new HashMap<>() 
-        ;
+        tarifasParqueadero = new HashMap<>();
+        registros = new ArrayList<>();
     }
     //Metodo para establecer y obtener la tarifa por tipo de vehiculo
     public void establecerTarifa(String tipoVehiculo, Double montoPorHora) {
@@ -108,10 +112,20 @@ public class Parqueadero {
         return disponibilidad;
     }
      //Metodo para ver si un puesto esta ocupada o no(boolean) por indice : (True=ocupado)
-     public boolean puestoDisponibilidad(int t, int w) {
-        assert (t<=getFilas()&&w<=getColumnas());
-        return dimension[t][w].isOcupado();
-    }
+     public boolean puestoDisponibilidad(int n) {
+        assert (n<=dimension.length);
+        int contadorcito = 0;
+        boolean ocupado = false;
+        for(int i=0;i<getFilas();i++) {
+            for(int j=0;j<getColumnas();j++) {
+                if (n==contadorcito) {
+                    ocupado=dimension[i][j].isOcupado();
+                }
+                contadorcito+=1;
+            }
+        }
+        return ocupado;
+     }
     //Metodo interativo para registrar un vehiculo
     public void registrarVehiculo() {
         System.out.println("Tipos de vehiculos: 1. Carro  2. Moto");
@@ -154,6 +168,8 @@ public class Parqueadero {
             case 2:
                 if (tipoMoto==1) {
                     ocuparPuesto(new Moto(placa, modelo, new Propietario(nombre, id), velMaxima, TipoMoto.CLASICA), n);
+                } else {
+                    ocuparPuesto(new Moto(placa, modelo, new Propietario(nombre, id), velMaxima, TipoMoto.HIBRIDA), n);
                 }
                 break;
             default:
@@ -165,7 +181,6 @@ public class Parqueadero {
     public void ocuparPuesto(Vehiculo vehiculo, int n) {
         assert (n<=dimension.length);
         int contadorcito = 0;
-        ;
         for(int i=0;i<getFilas();i++) {
             for(int j=0;j<getColumnas();j++) {
                 if (n==contadorcito) {
@@ -178,7 +193,33 @@ public class Parqueadero {
         } 
     }
     //Metodo para obtener el propietario de un vehiculo en un puesto dado
-    public Propietario obtenerPropietarioPorPuesto(int t, int w) {
-        return dimension[t][w].getVehiculo().getPropietario();
+    public Propietario obtenerPropietarioPorPuesto(int n) {
+        assert (n<=dimension.length);
+        Propietario propietario = new Propietario(null, null);
+        int contadorcito = 0;
+        for(int i=0;i<getFilas();i++) {
+            for(int j=0;j<getColumnas();j++) {
+                if (n==contadorcito) {
+                    propietario=dimension[i][j].getVehiculo().getPropietario();
+                }
+                contadorcito+=1;
+            }
+        } 
+        return propietario;
     }
+    //Metodo para anadir un registro a la lista de registros
+    public void registrarEntrada(Vehiculo vehiculo, int posicion) {
+        RegistroEntrada registro = new RegistroEntrada(vehiculo, posicion);
+        registros.add(registro);
+    }
+    //Clase interna para tener registro de lo que sucede en el parqueadero
+    private static class RegistroEntrada {
+        private Vehiculo vehiculo;
+        private int posicionN;
+
+        public RegistroEntrada(Vehiculo vehiculo, int posicionN) {
+            this.vehiculo = vehiculo;
+            this.posicionN = posicionN;
+        }  
+    }    
 }

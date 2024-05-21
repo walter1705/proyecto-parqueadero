@@ -1,5 +1,6 @@
 package co.edu.uniquindio.poo;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +21,21 @@ public class Parqueadero {
         this.filas = filas;
         this.columnas = columnas;
         dimension = new Puesto[filas][columnas];
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                dimension[i][j] = new Puesto(new Vehiculo("plantilla", "plantilla", new Propietario("plantilla", "plantilla")), false); 
+            }
+        }
         tarifasParqueadero = new HashMap<>();
         registros = new ArrayList<>();
+    }
+    //Metodo para obtener la tabla de tarifas de parqueadero
+    public Map<String, Double> getTarifasParqueadero() {
+        return tarifasParqueadero;
+    }
+    //Metodo para obtener los registros del parqueadero
+    public Collection<RegistroEntrada> getRegistros() {
+        return registros;
     }
     //Metodo para establecer y obtener la tarifa por tipo de vehiculo
     public void establecerTarifa(String tipoVehiculo, Double montoPorHora) {
@@ -48,13 +62,16 @@ public class Parqueadero {
     //Metodo para establecer la tarifas del parqueadero 
     public void setTarifaManual() {
         System.out.println("Ingrese la tarifa unitaria del carro: ");
-        double tarifaCarro = scanner.nextInt();
+        double tarifaCarro = scanner.nextDouble();
+        scanner.nextLine();
 
         System.out.println("Ingrese la tarifa unitaria de la moto, clasica: ");
-        double tarifaMotoClasica = scanner.nextInt();
+        double tarifaMotoClasica = scanner.nextDouble();
+        scanner.nextLine();
 
         System.out.println("Ingrese la tarifa unitaria del carro: ");
-        double tarifaMotoHibrida = scanner.nextInt();
+        double tarifaMotoHibrida = scanner.nextDouble();
+        scanner.nextLine();
 
         establecerTarifa("CARRO", tarifaCarro);
         establecerTarifa("MOTO CLASICA", tarifaMotoClasica);
@@ -62,7 +79,7 @@ public class Parqueadero {
 
     }
     //Metodo para obtener el precio del estacionamiento por horas y por la tarifa ya establecida
-    public double calcularCostoTotal(short horasDeServicio, Map<String, Double> tarifasParqueadero, String tipoVehiculo) {
+    public double calcularCostoTotal(short horasDeServicio, String tipoVehiculo) {
         assert (horasDeServicio>0);
         double costoTotal=horasDeServicio*obtenerTarifa(tipoVehiculo);
         return costoTotal;
@@ -71,19 +88,29 @@ public class Parqueadero {
     public Puesto[][] getDimension() {
         return dimension;
     }
-    public void setDimension(Puesto[][] dimension) {
-        this.dimension = dimension;
+    public void setDimension(Puesto dimension[][]) {
+        this.dimension =dimension;
     }
     //metodo para modificar las filas y columnas del parqueadero
     public void setDimensionManual() {
         System.out.println("Ingrese las filas de su parqueadero. (i<-, j)");
         int i = scanner.nextInt();
+        scanner.nextLine();
 
         System.out.println("Ingrese las columnas de su parqueadero. (i, ->j)");
         int j = scanner.nextInt();
+        scanner.nextLine();
 
         setFilas(i);
         setColumnas(j);
+        Puesto[][] dimension = new Puesto[i][j];
+        for (int y = 0; y < filas; y++) {
+            for (int x = 0; x < columnas; x++) {
+                dimension[y][x] = new Puesto(new Vehiculo("plantilla", "plantilla", new Propietario("plantilla", "plantilla")), false); 
+            }
+        }
+        setDimension(dimension);
+        
     }
     //Metodo get y set de las FILAS de la dimension de los puestos del parqueadero
     public int getFilas() {
@@ -113,7 +140,7 @@ public class Parqueadero {
     }
      //Metodo para ver si un puesto esta ocupada o no(boolean) por indice : (True=ocupado)
      public boolean puestoDisponibilidad(int n) {
-        assert (n<=dimension.length);
+        assert (n<=dimension.length-1);
         int contadorcito = 0;
         boolean ocupado = false;
         for(int i=0;i<getFilas();i++) {
@@ -131,18 +158,21 @@ public class Parqueadero {
         System.out.println("Tipos de vehiculos: 1. Carro  2. Moto");
         System.out.println("Elige el tipo de vehiculo.");
         int tipo = scanner.nextInt();
+        scanner.nextLine();
 
-        
         int velMaxima=0;
         int tipoMoto=0;
         if (tipo==2) {
-            while(tipoMoto!=1 || tipoMoto!=2) {
+            while(tipoMoto==0) {
             System.out.println("1. Clasica   2. Hibrida  ");
             tipoMoto = scanner.nextInt();
+            scanner.nextLine();
             }
             System.out.println("Ingrese la velocidad maxima de la moto: ");
             velMaxima = scanner.nextInt();
+            scanner.nextLine();
             }
+            
         System.out.println("Ingrese su nombre completo: ");
         String nombre = scanner.nextLine();
         
@@ -157,8 +187,8 @@ public class Parqueadero {
 
         System.out.println("Ingrese el puesto de parqueadero que desea asignar al vehiculo: ");
         int n = scanner.nextInt();
-        System.out.println("Se encuentran "+ dimension.length +" puestos en el parqueadero. ");
-
+        scanner.nextLine();
+        System.out.println("Se encuentran "+ (dimension.length*dimension[0].length) +" puestos en el parqueadero. ");  /// siempre muestra 1 en el metodo interac
         System.out.println();
         
         switch (tipo) {
@@ -179,22 +209,40 @@ public class Parqueadero {
     }
     //Metodo para ocupar un Puesto con un vehiculo
     public void ocuparPuesto(Vehiculo vehiculo, int n) {
-        assert (n<=dimension.length);
+        assert (n<=dimension.length-1);
         int contadorcito = 0;
         for(int i=0;i<getFilas();i++) {
             for(int j=0;j<getColumnas();j++) {
                 if (n==contadorcito) {
-                    assert (dimension[i][j].isOcupado()==false)&&(puestoDisponibilidadPorVehiculo(vehiculo)==false);
+                    assert !dimension[i][j].isOcupado()&&!puestoDisponibilidadPorVehiculo(vehiculo);
                     dimension[i][j].setVehiculo(vehiculo);
                     dimension[i][j].setOcupado(true);
+                    registrarEntrada(vehiculo, n, LocalDateTime.now());
+                    System.out.println("El vehiculo se registro correctamente en el puesto "+n+". ");
                 }
                 contadorcito+=1;
             }
         } 
     }
+    //Metodo para librear un Puesto con un vehiculo en el
+    public void liberarPuesto(int n) {
+        assert n <= dimension.length-1;
+        int contadorcito = 0;
+        for (int i = 0; i < getFilas(); i++) {
+            for (int j = 0; j < getColumnas(); j++) {
+                if (n == contadorcito && dimension[i][j].isOcupado()) {
+                    Vehiculo vehiculo = dimension[i][j].getVehiculo();
+                    dimension[i][j].setVehiculo(new Vehiculo("plantilla", "plantilla", new Propietario("plantilla", "plantilla")));
+                    dimension[i][j].setOcupado(false);
+                    registrarSalida(vehiculo, n, LocalDateTime.now());
+                }
+                contadorcito++;
+            }
+        }
+    }
     //Metodo para obtener el propietario de un vehiculo en un puesto dado
     public Propietario obtenerPropietarioPorPuesto(int n) {
-        assert (n<=dimension.length);
+        assert (n<=dimension.length-1);
         Propietario propietario = new Propietario(null, null);
         int contadorcito = 0;
         for(int i=0;i<getFilas();i++) {
@@ -208,18 +256,65 @@ public class Parqueadero {
         return propietario;
     }
     //Metodo para anadir un registro a la lista de registros
-    public void registrarEntrada(Vehiculo vehiculo, int posicion) {
-        RegistroEntrada registro = new RegistroEntrada(vehiculo, posicion);
+    public void registrarEntrada(Vehiculo vehiculo, int posicion, LocalDateTime horaEntrada) {
+        RegistroEntrada registro = new RegistroEntrada(vehiculo, posicion, horaEntrada, null);
         registros.add(registro);
     }
+    //Metodo para registrar la salida de un vehiculo
+    private void registrarSalida(Vehiculo vehiculo, int posicion, LocalDateTime horaSalida) {
+        for (RegistroEntrada registro : registros) {
+            if (registro.getVehiculo().equals(vehiculo) && registro.getPosicionN() == posicion && registro.getHoraSalida() == null) {
+                registro.setHoraSalida(horaSalida);
+                break;
+            }
+        }
+    }
     //Clase interna para tener registro de lo que sucede en el parqueadero
-    private static class RegistroEntrada {
+    public static class RegistroEntrada {
         private Vehiculo vehiculo;
         private int posicionN;
+        private LocalDateTime horaEntrada;
+        private LocalDateTime horaSalida;
 
-        public RegistroEntrada(Vehiculo vehiculo, int posicionN) {
+
+        public RegistroEntrada(Vehiculo vehiculo, int posicionN, LocalDateTime horaEntrada, LocalDateTime horaSalida) {
             this.vehiculo = vehiculo;
             this.posicionN = posicionN;
+            this.horaEntrada = horaEntrada;
+            this.horaSalida = horaSalida;
+        }
+        //Metodo para obtener y modificar el vehiculo en el registro
+        public Vehiculo getVehiculo() {
+            return vehiculo;
+        }
+        public void setVehiculo(Vehiculo vehiculo) {
+            this.vehiculo = vehiculo;
+        }
+        //Metodo para obtener y modificar la posicion donde se encuentra el registro
+        public int getPosicionN() {
+            return posicionN;
+        }
+        public void setPosicionN(int posicionN) {
+            this.posicionN = posicionN;
+        }
+        //Metodo para obtener y modificar la hora de entrada en el registro de un vehiculo
+        public LocalDateTime getHoraEntrada() {
+            return horaEntrada;
+        }
+        public void setHoraEntrada(LocalDateTime horaEntrada) {
+            this.horaEntrada = horaEntrada;
+        }
+        //Metodo para obtener y modificar la hora de salida en el registro de un vehiculo
+        public LocalDateTime getHoraSalida() {
+            return horaSalida;
+        }
+        public void setHoraSalida(LocalDateTime horaSalida) {
+            this.horaSalida = horaSalida;
         }  
+        //Metodo para imprimir un registro completo en consola
+        public void registroToString() {
+            System.out.println("El vehiculo: "+vehiculo.toString()+" entro a la hora: "+horaEntrada+" se estaciono en el puesto: "+posicionN+" y su hora de salida fue: "+horaSalida);
+        }
+        
     }    
 }

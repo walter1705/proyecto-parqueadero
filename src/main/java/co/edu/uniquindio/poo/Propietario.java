@@ -21,4 +21,9 @@ public class Propietario {
     public void setId(String id) {
         this.id = id;   
     }
+    //Metodo para imprimir en consola un propietario
+    @Override
+    public String toString() {
+        return "[El nombre del propietario del vehiculo es: " + nombreCompleto + ", con documento de identificacion: " + id + "]";
+    }
 }

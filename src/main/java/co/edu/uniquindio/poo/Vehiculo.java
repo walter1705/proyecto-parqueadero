@@ -1,8 +1,8 @@
 package co.edu.uniquindio.poo;
 
 public class Vehiculo {
-    private String placa, modelo;
-    private Propietario propietario;
+    public String placa, modelo;
+    public Propietario propietario;
     /*
      * metodo constructor de la clase Vehiculo
      */
@@ -38,4 +38,5 @@ public class Vehiculo {
     public void setPropietario(Propietario propietario) {
         this.propietario = propietario;
     }
+
 }

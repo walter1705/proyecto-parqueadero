@@ -14,7 +14,7 @@ public class Parqueadero {
     private Puesto[][] dimension;
     private int filas, columnas;
     private Map<String, Double> tarifasParqueadero;
-    private Collection<RegistroEntrada> registros;
+    private Collection<Registro> registros;
     
     //Metodo constructor de la clase parqueadero
     public Parqueadero(int filas, int columnas) {
@@ -23,7 +23,7 @@ public class Parqueadero {
         dimension = new Puesto[filas][columnas];
         for (int i = 0; i < filas; i++) {
             for (int j = 0; j < columnas; j++) {
-                dimension[i][j] = new Puesto(new Vehiculo("plantilla", "plantilla", new Propietario("plantilla", "plantilla")), false); 
+                dimension[i][j] = new Puesto(null, false); 
             }
         }
         tarifasParqueadero = new HashMap<>();
@@ -34,7 +34,7 @@ public class Parqueadero {
         return tarifasParqueadero;
     }
     //Metodo para obtener los registros del parqueadero
-    public Collection<RegistroEntrada> getRegistros() {
+    public Collection<Registro> getRegistros() {
         return registros;
     }
     //Metodo para establecer y obtener la tarifa por tipo de vehiculo
@@ -80,7 +80,7 @@ public class Parqueadero {
     }
     //Metodo para obtener el precio del estacionamiento por horas y por la tarifa ya establecida
     public double calcularCostoTotal(short horasDeServicio, String tipoVehiculo) {
-        assert (horasDeServicio>0);
+        assert horasDeServicio>0;
         double costoTotal=horasDeServicio*obtenerTarifa(tipoVehiculo);
         return costoTotal;
     }
@@ -209,22 +209,25 @@ public class Parqueadero {
     }
     //Metodo para ocupar un Puesto con un vehiculo
     public void ocuparPuesto(Vehiculo vehiculo, int n) {
-        assert (n<=dimension.length-1);
+        assert n<=dimension.length-1&&vehiculo!=null;
         int contadorcito = 0;
         for(int i=0;i<getFilas();i++) {
             for(int j=0;j<getColumnas();j++) {
                 if (n==contadorcito) {
-                    assert !dimension[i][j].isOcupado()&&!puestoDisponibilidadPorVehiculo(vehiculo);
+                    if(!puestoDisponibilidad(n)&&!puestoDisponibilidadPorVehiculo(vehiculo)) {
                     dimension[i][j].setVehiculo(vehiculo);
                     dimension[i][j].setOcupado(true);
                     registrarEntrada(vehiculo, n, LocalDateTime.now());
                     System.out.println("El vehiculo se registro correctamente en el puesto "+n+". ");
+                    } else {
+                        System.out.println("El puesto ya está ocupado o el vehículo ya está en el parqueadero. ");
+                    }
                 }
                 contadorcito+=1;
             }
         } 
     }
-    //Metodo para librear un Puesto con un vehiculo en el
+    //Metodo para librear un Puesto con un vehiculo en el parqueadero
     public void liberarPuesto(int n) {
         assert n <= dimension.length-1;
         int contadorcito = 0;
@@ -232,13 +235,22 @@ public class Parqueadero {
             for (int j = 0; j < getColumnas(); j++) {
                 if (n == contadorcito && dimension[i][j].isOcupado()) {
                     Vehiculo vehiculo = dimension[i][j].getVehiculo();
-                    dimension[i][j].setVehiculo(new Vehiculo("plantilla", "plantilla", new Propietario("plantilla", "plantilla")));
+                    dimension[i][j].setVehiculo(null);
                     dimension[i][j].setOcupado(false);
                     registrarSalida(vehiculo, n, LocalDateTime.now());
                 }
                 contadorcito++;
             }
         }
+    }
+    //Metodo interativo para lregistrar la salida de un vehiculo en un puesto n
+    public void registrarSalidaVehiculo(){
+        System.out.println("Ingrese el numero de puesto que va a quedar vacio: ");
+        int puesto = scanner.nextInt();
+        scanner.nextLine();
+
+        liberarPuesto(puesto);
+        System.out.println("El puesto "+puesto+" ahora esta libre. ");
     }
     //Metodo para obtener el propietario de un vehiculo en un puesto dado
     public Propietario obtenerPropietarioPorPuesto(int n) {
@@ -255,66 +267,27 @@ public class Parqueadero {
         } 
         return propietario;
     }
+    //Metodo interativo para encontrar un propietario con un puesto n
+    public void encontrarPropietarioPorPuesto() {
+        System.out.println("Ingrese el puesto en que esta el vehiculo a encontrar propietario``: ");
+        int puesto = scanner.nextInt();
+        scanner.nextLine();
+
+        System.out.println("El propietario es: ");
+        System.out.println(obtenerPropietarioPorPuesto(puesto).toString());
+    }
     //Metodo para anadir un registro a la lista de registros
     public void registrarEntrada(Vehiculo vehiculo, int posicion, LocalDateTime horaEntrada) {
-        RegistroEntrada registro = new RegistroEntrada(vehiculo, posicion, horaEntrada, null);
+        Registro registro = new Registro(vehiculo, posicion, horaEntrada, null);
         registros.add(registro);
     }
     //Metodo para registrar la salida de un vehiculo
     private void registrarSalida(Vehiculo vehiculo, int posicion, LocalDateTime horaSalida) {
-        for (RegistroEntrada registro : registros) {
+        for (Registro registro : registros) {
             if (registro.getVehiculo().equals(vehiculo) && registro.getPosicionN() == posicion && registro.getHoraSalida() == null) {
                 registro.setHoraSalida(horaSalida);
                 break;
             }
         }
     }
-    //Clase interna para tener registro de lo que sucede en el parqueadero
-    public static class RegistroEntrada {
-        private Vehiculo vehiculo;
-        private int posicionN;
-        private LocalDateTime horaEntrada;
-        private LocalDateTime horaSalida;
-
-
-        public RegistroEntrada(Vehiculo vehiculo, int posicionN, LocalDateTime horaEntrada, LocalDateTime horaSalida) {
-            this.vehiculo = vehiculo;
-            this.posicionN = posicionN;
-            this.horaEntrada = horaEntrada;
-            this.horaSalida = horaSalida;
-        }
-        //Metodo para obtener y modificar el vehiculo en el registro
-        public Vehiculo getVehiculo() {
-            return vehiculo;
-        }
-        public void setVehiculo(Vehiculo vehiculo) {
-            this.vehiculo = vehiculo;
-        }
-        //Metodo para obtener y modificar la posicion donde se encuentra el registro
-        public int getPosicionN() {
-            return posicionN;
-        }
-        public void setPosicionN(int posicionN) {
-            this.posicionN = posicionN;
-        }
-        //Metodo para obtener y modificar la hora de entrada en el registro de un vehiculo
-        public LocalDateTime getHoraEntrada() {
-            return horaEntrada;
-        }
-        public void setHoraEntrada(LocalDateTime horaEntrada) {
-            this.horaEntrada = horaEntrada;
-        }
-        //Metodo para obtener y modificar la hora de salida en el registro de un vehiculo
-        public LocalDateTime getHoraSalida() {
-            return horaSalida;
-        }
-        public void setHoraSalida(LocalDateTime horaSalida) {
-            this.horaSalida = horaSalida;
-        }  
-        //Metodo para imprimir un registro completo en consola
-        public void registroToString() {
-            System.out.println("El vehiculo: "+vehiculo.toString()+" entro a la hora: "+horaEntrada+" se estaciono en el puesto: "+posicionN+" y su hora de salida fue: "+horaSalida);
-        }
-        
-    }    
 }

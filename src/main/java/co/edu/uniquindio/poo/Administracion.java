@@ -31,12 +31,14 @@ public class Administracion {
                     int opcion2 = 0;
                     while (opcion2 != 2) {
                         System.out.println();
-                        System.out.println("1. Registrar vehiculo.");
+                        System.out.println("1. Registrar la entrada de un vehiculo.");
                         System.out.println("2. Configurar valores del parqueadero. ");
                         System.out.println("3. Mostrar las dimensiones y numero por puestos del parqueadero.");
                         System.out.println("4. Comprobar si un puesto esta ocupado. ");
                         System.out.println("5. Mostrar el registro del parqueadero. ");
-                        System.out.println("6. Salir. ");
+                        System.out.println("6. Encontrar propietario de un vehiculo por puesto. ");
+                        System.out.println("7. Registrar la salida de un vehiculo");
+                        System.out.println("8. Salir. ");
 
                         opcion2 = scanner.nextInt();
                         scanner.nextLine();
@@ -63,6 +65,12 @@ public class Administracion {
                                 mostrarRegistroParqueadero();
                                 break;
                             case 6:
+                                parqueadero.encontrarPropietarioPorPuesto();
+                                break;
+                            case 7:
+                                parqueadero.registrarSalidaVehiculo();
+                                break;
+                            case 8:
                                 opcion=5;
                                 opcion2=2;
                                 break;
@@ -104,8 +112,8 @@ public class Administracion {
     }
     //Metodo para mostrar el registro del parqueadero BETAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     static public void mostrarRegistroParqueadero() {
-        for (RegistroEntrada registro : parqueadero.getRegistros()) {
-            System.out.println(registro.toString());
+        for (Registro registro : parqueadero.getRegistros()) {
+            System.out.println(registro.registroToString());;
             System.out.println();
         }
     }

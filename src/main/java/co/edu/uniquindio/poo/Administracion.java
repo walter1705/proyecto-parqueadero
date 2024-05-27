@@ -2,15 +2,13 @@ package co.edu.uniquindio.poo;
 
 import java.util.Scanner;
 
-import co.edu.uniquindio.poo.Parqueadero.RegistroEntrada;
-
 public class Administracion {
     private static Scanner scanner = new Scanner(System.in);
     static Parqueadero parqueadero = new Parqueadero(0, 0);
     public static void main(String[] args) {
         
         int opcion = 0;
-        while(opcion!=5) {
+        while(opcion!=4) {
             System.out.println("Admin, antes de continuar debes de configurar los valores de tu parqueadero, utilizando CADA UNA de las siguientes opciones.");
             System.out.println("1. Establecer dimensiones del parqueadero.");
             System.out.println("2. Establecer las tarifas del parqueadero.");
@@ -31,6 +29,7 @@ public class Administracion {
                     int opcion2 = 0;
                     while (opcion2 != 2) {
                         System.out.println();
+                        System.out.println("Menu interativo. ");
                         System.out.println("1. Registrar la entrada de un vehiculo.");
                         System.out.println("2. Configurar valores del parqueadero. ");
                         System.out.println("3. Mostrar las dimensiones y numero por puestos del parqueadero.");
@@ -38,7 +37,9 @@ public class Administracion {
                         System.out.println("5. Mostrar el registro del parqueadero. ");
                         System.out.println("6. Encontrar propietario de un vehiculo por puesto. ");
                         System.out.println("7. Registrar la salida de un vehiculo");
-                        System.out.println("8. Salir. ");
+                        System.out.println("8. Generar un reporte diario de lo recaudado. ");
+                        System.out.println("9. Generar un reporte mensual de lo recaudado. ");
+                        System.out.println("10. Salir. ");
 
                         opcion2 = scanner.nextInt();
                         scanner.nextLine();
@@ -71,7 +72,13 @@ public class Administracion {
                                 parqueadero.registrarSalidaVehiculo();
                                 break;
                             case 8:
-                                opcion=5;
+                                parqueadero.generarReporteDiario();
+                                break;
+                            case 9:
+                                parqueadero.interativoReporteMensual();
+                                break;
+                            case 10:
+                                opcion=4;
                                 opcion2=2;
                                 break;
                             default:
@@ -117,5 +124,8 @@ public class Administracion {
             System.out.println();
         }
     }
+    //Metodo para generar un reporte (en texto) diario del parqueadero
+
+    //public void generarReporteDiario()
 }
 

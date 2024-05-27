@@ -6,6 +6,7 @@ public class Moto extends Vehiculo{
     // Metodo constructor de la clase Moto
     public Moto(String placa, String modelo, Propietario propietario, int velocidadMax, TipoMoto tipoMoto) {
         super(placa, modelo, propietario);
+        assert velocidadMax > 0;
         this.velocidadMax = velocidadMax;
         this.tipoMoto = tipoMoto;
     }  

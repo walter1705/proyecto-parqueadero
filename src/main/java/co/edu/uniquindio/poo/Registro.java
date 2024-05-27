@@ -7,13 +7,15 @@ public class Registro {
     private int posicionN;
     private LocalDateTime horaEntrada;
     private LocalDateTime horaSalida;
+    private Double precio;
 
 
-    public Registro(Vehiculo vehiculo, int posicionN, LocalDateTime horaEntrada, LocalDateTime horaSalida) {
+    public Registro(Vehiculo vehiculo, int posicionN, LocalDateTime horaEntrada, LocalDateTime horaSalida, Double precio) {
         this.vehiculo = vehiculo;
         this.posicionN = posicionN;
         this.horaEntrada = horaEntrada;
         this.horaSalida = horaSalida;
+        this.precio = precio;
     }
     //Metodo para obtener y modificar el vehiculo en el registro
     public Vehiculo getVehiculo() {
@@ -45,7 +47,14 @@ public class Registro {
     }  
     //Metodo para imprimir un registro completo en consola
     public String registroToString() {
-        return ("El vehiculo: "+vehiculo.toString()+" entro a la hora: "+horaEntrada+" se estaciono en el puesto: "+posicionN+" y su hora de salida fue: "+horaSalida);
+        return ("El vehiculo: "+vehiculo.toString()+" entro a la hora: "+horaEntrada+" se estaciono en el puesto: "+posicionN+" y su hora de salida fue: "+horaSalida+" y se obtuvieron: "+precio+"$ de ganancia. ");
+    }
+    //Metodo para obtener y modificar el precio del parqueo
+    public double getPrecio() {
+        return precio;
+    }
+    public void setPrecio(Double precio) {
+        this.precio = precio;
     }
     
 }    

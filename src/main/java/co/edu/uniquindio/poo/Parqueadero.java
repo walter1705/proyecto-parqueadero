@@ -1,6 +1,9 @@
 package co.edu.uniquindio.poo;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,7 +18,8 @@ public class Parqueadero {
     private int filas, columnas;
     private Map<String, Double> tarifasParqueadero;
     private Collection<Registro> registros;
-    
+    private Collection<ReporteDiario> reportesDiariosGenerados;
+    private Collection<ReporteMensual> reportesMensualesGenerados;
     //Metodo constructor de la clase parqueadero
     public Parqueadero(int filas, int columnas) {
         this.filas = filas;
@@ -28,6 +32,19 @@ public class Parqueadero {
         }
         tarifasParqueadero = new HashMap<>();
         registros = new ArrayList<>();
+        reportesDiariosGenerados = new ArrayList<>();
+        reportesMensualesGenerados = new ArrayList<>();
+    }
+    //Metodos para modificar y obtener los registros
+    public void setRegistros(Collection<Registro> registros) {
+        this.registros = registros;
+    }
+    public Collection<ReporteDiario> getReportesGenerados() {
+        return reportesDiariosGenerados;
+    }
+    // Metodos para modificar los reportes generados
+    public void setReportesGenerados(Collection<ReporteDiario> reportesGenerados) {
+        this.reportesDiariosGenerados = reportesGenerados;
     }
     //Metodo para obtener la tabla de tarifas de parqueadero
     public Map<String, Double> getTarifasParqueadero() {
@@ -40,23 +57,18 @@ public class Parqueadero {
     //Metodo para establecer y obtener la tarifa por tipo de vehiculo
     public void establecerTarifa(String tipoVehiculo, Double montoPorHora) {
         assert montoPorHora>=0;
-        if(tipoVehiculo=="CARRO") {
+        if(tipoVehiculo.equals("CARRO")) {
             tarifasParqueadero.put("CARRO", montoPorHora);
-        }else if (tipoVehiculo=="MOTO CLASICA") {
-            tarifasParqueadero.put("MOTO HIBRIDA", montoPorHora);
-        }else if (tipoVehiculo=="MOTO HIBRIDA") {
+        }else if (tipoVehiculo.equals("MOTO CLASICA")) {
+            tarifasParqueadero.put("MOTO CLASICA", montoPorHora);
+        }else if (tipoVehiculo.equals("MOTO HIBRIDA")) {
             tarifasParqueadero.put("MOTO HIBRIDA", montoPorHora);
         } 
     }
+    //Metodo para obtener(get)la tarifa por nombre
     public double obtenerTarifa(String tipoVehiculo) {
         double montoPorHora = 0;
-        if(tipoVehiculo=="CARRO") {
-            montoPorHora = tarifasParqueadero.get(tipoVehiculo);
-        }else if (tipoVehiculo=="MOTO CLASICA") {
-            montoPorHora = tarifasParqueadero.get(tipoVehiculo);
-        }else if (tipoVehiculo=="MOTO HIBRIDA") {
-            montoPorHora = tarifasParqueadero.get(tipoVehiculo);
-        } 
+        montoPorHora = tarifasParqueadero.get(tipoVehiculo);
         return montoPorHora;
     }
     //Metodo para establecer la tarifas del parqueadero 
@@ -69,19 +81,31 @@ public class Parqueadero {
         double tarifaMotoClasica = scanner.nextDouble();
         scanner.nextLine();
 
-        System.out.println("Ingrese la tarifa unitaria del carro: ");
+        System.out.println("Ingrese la tarifa unitaria de la moto, hibrida: ");
         double tarifaMotoHibrida = scanner.nextDouble();
         scanner.nextLine();
 
         establecerTarifa("CARRO", tarifaCarro);
         establecerTarifa("MOTO CLASICA", tarifaMotoClasica);
         establecerTarifa("MOTO HIBRIDA", tarifaMotoHibrida);
+    }
+    //Metodo para calcular las horas de uso del carro
+    public long horasEnParqueadero(Registro registro) {
+        assert registro.getHoraEntrada().isBefore(registro.getHoraSalida());
+        Duration duracion = Duration.between(registro.getHoraEntrada(), registro.getHoraSalida());
+        
+        long horas = duracion.toHours();
 
+        if (duracion.minusHours(horas).toMinutes()>0) {
+            horas+=1;
+        }
+        return horas;
     }
     //Metodo para obtener el precio del estacionamiento por horas y por la tarifa ya establecida
-    public double calcularCostoTotal(short horasDeServicio, String tipoVehiculo) {
-        assert horasDeServicio>0;
-        double costoTotal=horasDeServicio*obtenerTarifa(tipoVehiculo);
+    public Double calcularCostoTotal(String tipoVehiculo, Registro registro) {
+        long horasDeServicio=horasEnParqueadero(registro);
+        assert horasDeServicio>=0;
+        Double costoTotal=horasDeServicio*obtenerTarifa(tipoVehiculo);
         return costoTotal;
     }
     //Metodo get y set de la dimension de los puestos del parqueadero
@@ -91,7 +115,7 @@ public class Parqueadero {
     public void setDimension(Puesto dimension[][]) {
         this.dimension =dimension;
     }
-    //metodo para modificar las filas y columnas del parqueadero
+    //metodo interativo para modificar las filas y columnas del parqueadero
     public void setDimensionManual() {
         System.out.println("Ingrese las filas de su parqueadero. (i<-, j)");
         int i = scanner.nextInt();
@@ -188,7 +212,7 @@ public class Parqueadero {
         System.out.println("Ingrese el puesto de parqueadero que desea asignar al vehiculo: ");
         int n = scanner.nextInt();
         scanner.nextLine();
-        System.out.println("Se encuentran "+ (dimension.length*dimension[0].length) +" puestos en el parqueadero. ");  /// siempre muestra 1 en el metodo interac
+        System.out.println("Se encuentran "+ (dimension.length*dimension[0].length) +" puestos en el parqueadero. ");  
         System.out.println();
         
         switch (tipo) {
@@ -233,12 +257,19 @@ public class Parqueadero {
         int contadorcito = 0;
         for (int i = 0; i < getFilas(); i++) {
             for (int j = 0; j < getColumnas(); j++) {
-                if (n == contadorcito && dimension[i][j].isOcupado()) {
+                if (n == contadorcito) {
+                    if (dimension[i][j].isOcupado()) {
                     Vehiculo vehiculo = dimension[i][j].getVehiculo();
                     dimension[i][j].setVehiculo(null);
                     dimension[i][j].setOcupado(false);
                     registrarSalida(vehiculo, n, LocalDateTime.now());
-                }
+                    i=1000;
+                    j=1000;
+                    System.out.println("Puesto "+n+" liberado correctamente.");
+                    } else {
+                        System.out.println("El puesto ya estabs desocupado. ");
+                    }
+                } 
                 contadorcito++;
             }
         }
@@ -269,7 +300,7 @@ public class Parqueadero {
     }
     //Metodo interativo para encontrar un propietario con un puesto n
     public void encontrarPropietarioPorPuesto() {
-        System.out.println("Ingrese el puesto en que esta el vehiculo a encontrar propietario``: ");
+        System.out.println("Ingrese el puesto en que esta el vehiculo a encontrar propietario`: ");
         int puesto = scanner.nextInt();
         scanner.nextLine();
 
@@ -278,16 +309,122 @@ public class Parqueadero {
     }
     //Metodo para anadir un registro a la lista de registros
     public void registrarEntrada(Vehiculo vehiculo, int posicion, LocalDateTime horaEntrada) {
-        Registro registro = new Registro(vehiculo, posicion, horaEntrada, null);
+        Registro registro = new Registro(vehiculo, posicion, horaEntrada, null, 0.0);
         registros.add(registro);
     }
     //Metodo para registrar la salida de un vehiculo
     private void registrarSalida(Vehiculo vehiculo, int posicion, LocalDateTime horaSalida) {
+        Double costo=0.0;
         for (Registro registro : registros) {
             if (registro.getVehiculo().equals(vehiculo) && registro.getPosicionN() == posicion && registro.getHoraSalida() == null) {
                 registro.setHoraSalida(horaSalida);
-                break;
+                if (vehiculo instanceof Carro) {
+                    costo=calcularCostoTotal("CARRO", registro);
+                } else if (vehiculo instanceof Moto) {
+                    Moto vehiMoto = (Moto) vehiculo;
+                    if (vehiMoto.getTipoMoto().equals(TipoMoto.CLASICA)) {
+                        costo=calcularCostoTotal("MOTO CLASICA", registro);
+                    } else if(vehiMoto.getTipoMoto().equals(TipoMoto.HIBRIDA)) {
+                        costo=calcularCostoTotal("MOTO HIBRIDA", registro);
+                    }
+                }
+                registro.setPrecio(costo);
+                System.out.println("Precio designado: " + registro.getPrecio());
+                return;
             }
         }
+    }
+    //Metodo para generar un reporte diario e imprimirlo
+    public ReporteDiario generarReporteDiario() {
+        ReporteDiario rep = new ReporteDiario(0, 0, 0, 0);
+        LocalDate hoy = LocalDate.now();
+        System.out.println("Registro de carros: ");
+        for (Registro registro : registros) {
+            if (registro.getVehiculo() instanceof Carro && registro.getHoraEntrada().toLocalDate().equals(hoy)) {
+                rep.totalRecaudado+=registro.getPrecio();
+                rep.recaudadoCarros+=registro.getPrecio();
+                System.out.println(registro.registroToString());
+            }
+        }
+        System.out.println("Registro de motos clasicas: ");
+        for (Registro registro : registros) {
+            if (registro.getVehiculo() instanceof Moto && registro.getHoraEntrada().toLocalDate().equals(hoy)) {
+                Moto vehiMoto = (Moto) registro.getVehiculo();
+                if (vehiMoto.getTipoMoto().equals(TipoMoto.CLASICA)) {
+                    rep.totalRecaudado+=registro.getPrecio();
+                    rep.recaudadoMotosClasicas+=registro.getPrecio();
+                    System.out.println(registro.registroToString());
+                }
+                
+            }
+        }
+        System.out.println("Registro de motos hibridas: ");
+        for (Registro registro : registros) {
+            if (registro.getVehiculo() instanceof Moto && registro.getHoraEntrada().toLocalDate().equals(hoy)) {
+                Moto vehiMoto = (Moto) registro.getVehiculo();
+                if (vehiMoto.getTipoMoto().equals(TipoMoto.HIBRIDA)) {
+                    rep.totalRecaudado+=registro.getPrecio();
+                    rep.recaudadoMotosHibridas+=registro.getPrecio();
+                    System.out.println(registro.registroToString());
+                }
+                
+            }
+        }
+        reportesDiariosGenerados.add(rep);
+        System.out.println(rep.toString());
+        return rep;
+    }
+    //Metodo para generar un reporte diario e imprimirlo
+    public ReporteMensual generarReporteMensual(int mes) {
+        ReporteMensual rep = new ReporteMensual(0, 0, 0, 0);
+        LocalDate anioHoy= LocalDate.now();
+        LocalDate inicioMes = LocalDate.of(anioHoy.getYear(), mes, 1);
+        LocalDate finMes = inicioMes.with(TemporalAdjusters.lastDayOfMonth());
+
+        System.out.println("Registro de carros del mes: ");
+        for (Registro registro : registros) {
+            LocalDate fechaEntrada = registro.getHoraEntrada().toLocalDate();
+            if (registro.getVehiculo() instanceof Carro && !fechaEntrada.isBefore(inicioMes) && !fechaEntrada.isAfter(finMes)) {
+                rep.totalRecaudado += registro.getPrecio();
+                rep.recaudadoCarros += registro.getPrecio();
+                System.out.println(registro.registroToString());
+            }
+        }
+
+        System.out.println("Registro de motos clásicas del mes: ");
+        for (Registro registro : registros) {
+            LocalDate fechaEntrada = registro.getHoraEntrada().toLocalDate();
+            if (registro.getVehiculo() instanceof Moto && !fechaEntrada.isBefore(inicioMes) && !fechaEntrada.isAfter(finMes)) {
+                Moto vehiMoto = (Moto) registro.getVehiculo();
+                if (vehiMoto.getTipoMoto().equals(TipoMoto.CLASICA)) {
+                    rep.totalRecaudado += registro.getPrecio();
+                    rep.recaudadoMotosClasicas += registro.getPrecio();
+                    System.out.println(registro.registroToString());
+                }
+            }
+        }
+
+        System.out.println("Registro de motos híbridas del mes: ");
+        for (Registro registro : registros) {
+            LocalDate fechaEntrada = registro.getHoraEntrada().toLocalDate();
+            if (registro.getVehiculo() instanceof Moto && !fechaEntrada.isBefore(inicioMes) && !fechaEntrada.isAfter(finMes)) {
+                Moto vehiMoto = (Moto) registro.getVehiculo();
+                if (vehiMoto.getTipoMoto().equals(TipoMoto.HIBRIDA)) {
+                    rep.totalRecaudado += registro.getPrecio();
+                    rep.recaudadoMotosHibridas += registro.getPrecio();
+                    System.out.println(registro.registroToString());
+                }
+            }
+        }
+        reportesMensualesGenerados.add(rep);
+        System.out.println(rep.toString());
+        return rep;
+    }
+    //Metodo interativo para pedirle al usuario la informacion del metodo generarReporteMensual
+    public void interativoReporteMensual() {
+        System.out.println("Ingrese el mes del que quiere generar el reporte: ");
+        int mes = scanner.nextInt();
+        scanner.nextLine();
+        generarReporteMensual(mes);
     }
 }

@@ -5,6 +5,7 @@ public class Propietario {
     // Metodo constructor de la clase 
     public Propietario(String nombreCompleto, String id) {
         assert nombreCompleto!=null&&!nombreCompleto.isBlank();
+        assert id!=null&&!id.isBlank();
         this.nombreCompleto = nombreCompleto;
         this.id = id;
     }

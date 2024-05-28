@@ -25,11 +25,11 @@ public class Parqueadero {
         this.filas = filas;
         this.columnas = columnas;
         dimension = new Puesto[filas][columnas];
-        for (int i = 0; i < filas; i++) {
-            for (int j = 0; j < columnas; j++) {
-                dimension[i][j] = new Puesto(null, false); 
-            }
-        }
+       // for (int i = 0; i < filas; i++) {
+         //   for (int j = 0; j < columnas; j++) {
+          //      dimension[i][j] = new Puesto(null, false); 
+          //  }
+        //}
         tarifasParqueadero = new HashMap<>();
         registros = new ArrayList<>();
         reportesDiariosGenerados = new ArrayList<>();
@@ -164,7 +164,7 @@ public class Parqueadero {
     }
      //Metodo para ver si un puesto esta ocupada o no(boolean) por indice : (True=ocupado)
      public boolean puestoDisponibilidad(int n) {
-        assert (n<=dimension.length-1);
+        assert n<dimension.length;
         int contadorcito = 0;
         boolean ocupado = false;
         for(int i=0;i<getFilas();i++) {
@@ -233,7 +233,7 @@ public class Parqueadero {
     }
     //Metodo para ocupar un Puesto con un vehiculo
     public void ocuparPuesto(Vehiculo vehiculo, int n) {
-        assert n<=dimension.length-1&&vehiculo!=null;
+        assert n<dimension.length&&vehiculo!=null;
         int contadorcito = 0;
         for(int i=0;i<getFilas();i++) {
             for(int j=0;j<getColumnas();j++) {
@@ -253,7 +253,7 @@ public class Parqueadero {
     }
     //Metodo para librear un Puesto con un vehiculo en el parqueadero
     public void liberarPuesto(int n) {
-        assert n <= dimension.length-1;
+        assert n<dimension.length;
         int contadorcito = 0;
         for (int i = 0; i < getFilas(); i++) {
             for (int j = 0; j < getColumnas(); j++) {
@@ -285,13 +285,18 @@ public class Parqueadero {
     }
     //Metodo para obtener el propietario de un vehiculo en un puesto dado
     public Propietario obtenerPropietarioPorPuesto(int n) {
-        assert (n<=dimension.length-1);
-        Propietario propietario = new Propietario(null, null);
+        assert n<dimension.length;
+        Propietario propietario = new Propietario("plant", "plant");
         int contadorcito = 0;
         for(int i=0;i<getFilas();i++) {
             for(int j=0;j<getColumnas();j++) {
                 if (n==contadorcito) {
-                    propietario=dimension[i][j].getVehiculo().getPropietario();
+                    Puesto puesto = dimension[i][j];
+                    if (puesto.isOcupado() && puesto.getVehiculo() != null) {
+                        propietario = puesto.getVehiculo().getPropietario();
+                    } else {
+                        System.out.println("No hay ningun vehiculo en este puesto. ");
+                    } 
                 }
                 contadorcito+=1;
             }
@@ -300,15 +305,20 @@ public class Parqueadero {
     }
     //Metodo interativo para encontrar un propietario con un puesto n
     public void encontrarPropietarioPorPuesto() {
-        System.out.println("Ingrese el puesto en que esta el vehiculo a encontrar propietario`: ");
+        System.out.println("Ingrese el puesto en que esta el vehiculo a encontrar propietario: ");
         int puesto = scanner.nextInt();
         scanner.nextLine();
-
-        System.out.println("El propietario es: ");
-        System.out.println(obtenerPropietarioPorPuesto(puesto).toString());
+        if (!puestoDisponibilidad(puesto)) {
+           System.out.println("El puesto no esta ocupado por ningun vehiculo. "); 
+        } else {
+            System.out.println("El propietario del vehiculo situado en el puesto es: ");
+            System.out.println(obtenerPropietarioPorPuesto(puesto).toString());
+        }
+        
     }
     //Metodo para anadir un registro a la lista de registros
     public void registrarEntrada(Vehiculo vehiculo, int posicion, LocalDateTime horaEntrada) {
+        assert posicion < dimension.length;
         Registro registro = new Registro(vehiculo, posicion, horaEntrada, null, 0.0);
         registros.add(registro);
     }

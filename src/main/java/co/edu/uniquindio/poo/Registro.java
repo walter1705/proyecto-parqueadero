@@ -11,6 +11,10 @@ public class Registro {
 
 
     public Registro(Vehiculo vehiculo, int posicionN, LocalDateTime horaEntrada, LocalDateTime horaSalida, Double precio) {
+        assert vehiculo != null;
+        assert posicionN >= 0;
+        assert horaEntrada.isBefore(horaSalida);
+        assert precio >= 0;
         this.vehiculo = vehiculo;
         this.posicionN = posicionN;
         this.horaEntrada = horaEntrada;

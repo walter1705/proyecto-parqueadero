@@ -7,6 +7,9 @@ public class Vehiculo {
      * metodo constructor de la clase Vehiculo
      */
     public Vehiculo(String placa, String modelo, Propietario propietario) {
+        assert placa != null && !placa.isBlank();
+        assert modelo != null && !modelo.isBlank();
+        assert propietario != null;
         this.placa = placa;
         this.modelo = modelo;
         this.propietario = propietario;

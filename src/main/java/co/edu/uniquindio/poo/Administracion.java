@@ -113,19 +113,19 @@ public class Administracion {
     static public void mostrarDisponibilidadPuesto(int n) {
         if (!parqueadero.puestoDisponibilidad(n)) {
             System.out.println("EL PUESTO ESTA DESOCUPADO. ");
-        } else {
+        } else if (n>=parqueadero.getDimension().length) {
+            System.out.println("PUESTO INEXISTENTE");
+        }
+            else {
             System.out.println("EL PUESTO ESTA OCUPADO. ");
         }
     }
-    //Metodo para mostrar el registro del parqueadero BETAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    //Metodo para mostrar el registro del parqueadero 
     static public void mostrarRegistroParqueadero() {
         for (Registro registro : parqueadero.getRegistros()) {
             System.out.println(registro.registroToString());;
             System.out.println();
         }
     }
-    //Metodo para generar un reporte (en texto) diario del parqueadero
-
-    //public void generarReporteDiario()
 }
 

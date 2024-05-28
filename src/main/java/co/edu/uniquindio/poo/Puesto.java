@@ -6,6 +6,7 @@ public class Puesto {
     
     //Metodo constructor de la clase Puesto
     public Puesto(Vehiculo vehiculo, boolean ocupado)  {
+        assert vehiculo != null;
         this.vehiculo = vehiculo;
         this.ocupado = ocupado;
     }

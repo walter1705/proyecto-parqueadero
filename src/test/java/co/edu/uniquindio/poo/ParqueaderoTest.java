@@ -9,8 +9,8 @@ package co.edu.uniquindio.poo;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.logging.Logger;
 import org.junit.jupiter.api.Test;
 
@@ -79,7 +79,16 @@ public class ParqueaderoTest {
     /*
      * prueba para probar el correcto funcionamiento del metodo obtenerPropietarioPorPuesto
      */
-
+    @Test
+    public void obtenerPropietarioPorPuestoFunciona() {
+        LOG.info("Iniciado test obtenerPropietarioPorPuestoFunciona");
+         Vehiculo vehiculo = new Carro("abc123", "2023A", new Propietario("Walter G", "31490"));
+         Parqueadero parqueadero = new Parqueadero(2, 2);
+         parqueadero.ocuparPuesto(vehiculo, 1);
+         assertEquals(vehiculo.getPropietario() ,parqueadero.obtenerPropietarioPorPuesto(1));
+         
+         LOG.info("Finalizando test obtenerPropietarioPorPuestoFunciona");
+    }
     /**
      * prueba para pobrar el metodo ocuparPuesto y que no se agregue en un puesto que esta ocupado
      */
@@ -104,7 +113,7 @@ public class ParqueaderoTest {
     
      @Test
      public void liberarPuestoFunciona() {
-        LOG.info("Iniciado test denegarOcuparUnPuestoOcupado");
+        LOG.info("Iniciado test liberarPuestoFunciona");
          Vehiculo vehiculo = new Carro("abc123", "2023A", new Propietario("Walter G", "31490"));
          Parqueadero parqueadero = new Parqueadero(2, 2);
          parqueadero.establecerTarifa("CARRO", 10000.0);
@@ -115,6 +124,6 @@ public class ParqueaderoTest {
 
          assertFalse(parqueadero.puestoDisponibilidad(0)&&parqueadero.puestoDisponibilidadPorVehiculo(vehiculo));
          assertFalse(parqueadero.getDimension()[0][0].isOcupado());
-         LOG.info("Finalizando test denegarOcuparUnPuestoOcupado");
+         LOG.info("Finalizando test liberarPuestoFunciona");
      }        
 }

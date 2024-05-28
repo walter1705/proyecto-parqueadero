@@ -25,11 +25,11 @@ public class Parqueadero {
         this.filas = filas;
         this.columnas = columnas;
         dimension = new Puesto[filas][columnas];
-       // for (int i = 0; i < filas; i++) {
-         //   for (int j = 0; j < columnas; j++) {
-          //      dimension[i][j] = new Puesto(null, false); 
-          //  }
-        //}
+        for (int i = 0; i < filas; i++) {
+            for (int j = 0; j < columnas; j++) {
+                dimension[i][j] = new Puesto(new Vehiculo("123", "plantilla", new Propietario("plantilla", "plantilla")), false); 
+            }
+        }
         tarifasParqueadero = new HashMap<>();
         registros = new ArrayList<>();
         reportesDiariosGenerados = new ArrayList<>();
